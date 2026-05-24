@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f0d0b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lidtrix">
+  <title>Lidtrix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=IM+Fell+English:ital@0;1&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   LIDTRIX — GOLIATH · BARBARIAN 10 · PATH OF THE BERSERKER
+   Theme: Hewn stone · dried blood · worn bone · primal fury
+   Mobile PWA v1.0
+   ============================================================ */
+
+:root {
+  /* Stone backgrounds */
+  --bg:         #0f0d0b;
+  --bg-panel:   #1a1714;
+  --bg-inset:   #221e1a;
+  --bg-lift:    #2a2520;
+
+  /* Blood red — rage state */
+  --blood:      #8b1a1a;
+  --blood-hi:   #c23030;
+  --blood-dim:  #5a1010;
+  --blood-bg:   rgba(139,26,26,0.18);
+  --blood-glow: rgba(194,48,48,0.35);
+
+  /* Bone / ivory — primary text */
+  --bone:       #d4c9a8;
+  --bone-hi:    #ece4cc;
+  --bone-dim:   #9a8e70;
+  --bone-bg:    rgba(212,201,168,0.10);
+
+  /* Stone grey — secondary */
+  --stone:      #6b6560;
+  --stone-hi:   #8a8480;
+  --stone-dim:  #3a3530;
+  --stone-bg:   rgba(107,101,96,0.15);
+
+  /* Functional */
+  --safe:       #4a8a5a;
+  --safe-bg:    rgba(74,138,90,0.14);
+  --warn:       #c8782a;
+  --warn-bg:    rgba(200,120,42,0.15);
+  --danger:     #c02020;
+  --danger-bg:  rgba(192,32,32,0.18);
+
+  /* Borders */
+  --border:     #2e2820;
+  --border-hi:  #4a4030;
+
+  /* Fonts */
+  --font-h: 'Cinzel', Georgia, serif;
+  --font-b: 'IM Fell English', Georgia, serif;
+  --font-m: 'Source Code Pro', 'Courier New', monospace;
+
+  --chrome-h: 56px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+  --radius: 12px;
+}
+
+/* ── RESET ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
+body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--font-b);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+button { cursor: pointer; font-family: inherit; border: none; background: none; }
+input  { font-family: inherit; }
+::-webkit-scrollbar       { width: 3px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--stone-dim); border-radius: 3px; }
+
+/* ── KEYFRAMES ──────────────────────────────────────────────── */
+@keyframes fadeUp    { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+@keyframes crackIn   { from { opacity:0; transform:scale(.96) skewX(-1deg); } to { opacity:1; transform:scale(1) skewX(0); } }
+@keyframes ragePulse { 0%,100% { box-shadow: 0 0 16px var(--blood-glow); } 50% { box-shadow: 0 0 36px rgba(194,48,48,.55); } }
+@keyframes ripple    { from { transform:scale(0); opacity:.6; } to { transform:scale(3); opacity:0; } }
+@keyframes shake     { 0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)} }
+
+.fade-up     { animation: fadeUp .45s ease both; }
+.crack-in    { animation: crackIn .3s ease both; }
+.rage-glow   { animation: ragePulse 2s ease-in-out infinite; }
+
+/* ── SCREENS ─────────────────────────────────────────────────── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: block; }
+
+/* ── LOADING ─────────────────────────────────────────────────── */
+#loading {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  background: var(--bg);
+  z-index: 999;
+}
+#loading .load-name {
+  font-family: var(--font-h);
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: .15em;
+  color: var(--bone-hi);
+  text-transform: uppercase;
+}
+#loading .load-class {
+  font-family: var(--font-b);
+  font-size: 15px;
+  color: var(--bone-dim);
+  letter-spacing: .08em;
+}
+.load-bar {
+  width: 120px; height: 3px;
+  background: var(--bg-lift);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.load-bar::after {
+  content: '';
+  display: block; width: 40%; height: 100%;
+  background: var(--blood-hi);
+  border-radius: 2px;
+  animation: loadSlide 1s ease-in-out infinite alternate;
+}
+@keyframes loadSlide { from { transform:translateX(-50%); } to { transform:translateX(280%); } }
+
+/* ── SETUP SCREEN ─────────────────────────────────────────────── */
+#screen-setup {
+  padding: calc(var(--safe-top) + 32px) 20px calc(var(--safe-bot) + 48px);
+  max-width: 480px; margin: 0 auto;
+}
+.setup-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.setup-title {
+  font-family: var(--font-h);
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: .12em;
+  color: var(--bone-hi);
+  text-transform: uppercase;
+  line-height: 1;
+}
+.setup-subtitle {
+  font-family: var(--font-b);
+  font-size: 14px;
+  color: var(--bone-dim);
+  letter-spacing: .08em;
+  margin-top: 6px;
+}
+.setup-crest {
+  font-size: 52px;
+  display: block;
+  margin: 0 auto 12px;
+  line-height: 1;
+}
+
+.setup-section {
+  margin-bottom: 28px;
+}
+.setup-label {
+  font-family: var(--font-h);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--stone-hi);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.setup-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-hi);
+}
+
+/* HP Input */
+.hp-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+.hp-input-icon {
+  font-size: 22px;
+}
+.hp-input-field {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--bone-hi);
+  font-family: var(--font-m);
+  font-size: 28px;
+  font-weight: 600;
+  width: 80px;
+}
+.hp-input-max {
+  color: var(--stone);
+  font-family: var(--font-m);
+  font-size: 18px;
+}
+
+/* Weapon cards */
+.weapon-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.weapon-card {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: relative;
+}
+.weapon-card:active { background: var(--bg-lift); }
+.weapon-card.selected {
+  border-color: var(--blood-hi);
+  background: var(--blood-bg);
+}
+.weapon-card.selected::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--radius) - 1px);
+  background: linear-gradient(135deg, rgba(194,48,48,.06), transparent);
+}
+.weapon-radio {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--stone);
+  flex-shrink: 0;
+  transition: border-color .15s, background .15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.weapon-card.selected .weapon-radio {
+  border-color: var(--blood-hi);
+  background: var(--blood-hi);
+}
+.weapon-radio-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--bone-hi);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.weapon-card.selected .weapon-radio-dot { opacity: 1; }
+.weapon-info { flex: 1; }
+.weapon-name {
+  font-family: var(--font-h);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--bone-hi);
+  letter-spacing: .04em;
+}
+.weapon-stats {
+  font-family: var(--font-m);
+  font-size: 12px;
+  color: var(--bone-dim);
+  margin-top: 3px;
+}
+.weapon-mastery-badge {
+  font-family: var(--font-h);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: var(--stone-bg);
+  color: var(--stone-hi);
+  border: 1px solid var(--stone-dim);
+  flex-shrink: 0;
+}
+.weapon-card.selected .weapon-mastery-badge {
+  background: rgba(139,26,26,.25);
+  color: var(--blood-hi);
+  border-color: var(--blood-dim);
+}
+
+.begin-btn {
+  width: 100%;
+  padding: 20px;
+  background: var(--blood);
+  border: 2px solid var(--blood-hi);
+  border-radius: var(--radius);
+  color: var(--bone-hi);
+  font-family: var(--font-h);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  transition: background .15s, border-color .15s;
+  position: relative;
+  overflow: hidden;
+}
+.begin-btn:active { background: var(--blood-hi); }
+.begin-btn:disabled { opacity: .4; cursor: default; }
+.begin-btn-sub {
+  display: block;
+  font-family: var(--font-b);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .06em;
+  color: var(--bone-dim);
+  margin-top: 4px;
+  text-transform: none;
+}
+
+/* ── COMBAT SCREEN ─────────────────────────────────────────────── */
+#screen-combat { padding-bottom: calc(var(--safe-bot) + 100px); }
+
+/* Chrome */
+.combat-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: calc(var(--chrome-h) + var(--safe-top));
+  padding-top: var(--safe-top);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-hi);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 16px;
+  transition: background .3s, border-color .3s;
+}
+.combat-chrome.raging {
+  background: #1f0c0c;
+  border-bottom-color: var(--blood-dim);
+}
+.chrome-hp {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.chrome-hp-val {
+  font-family: var(--font-m);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--bone-hi);
+  line-height: 1;
+  transition: color .2s;
+}
+.chrome-hp-val.low    { color: var(--warn); }
+.chrome-hp-val.danger { color: var(--danger); animation: ragePulse 1.2s ease-in-out infinite; }
+.chrome-hp-max {
+  font-family: var(--font-m);
+  font-size: 15px;
+  color: var(--stone);
+}
+.chrome-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.chrome-name {
+  font-family: var(--font-h);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  color: var(--bone);
+  text-transform: uppercase;
+}
+.chrome-class {
+  font-family: var(--font-b);
+  font-size: 10px;
+  color: var(--stone);
+  letter-spacing: .05em;
+  margin-top: 1px;
+}
+.chrome-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.chrome-stat {
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--stone-hi);
+}
+.chrome-stat span {
+  color: var(--bone-dim);
+  font-size: 10px;
+  margin-right: 3px;
+}
+
+/* Main content */
+.combat-content {
+  padding: 16px 16px 0;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Panels */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.panel-title {
+  font-family: var(--font-h);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--stone-hi);
+}
+.panel-body {
+  padding: 14px 16px;
+}
+
+/* ── RAGE PANEL ─────────────────────────────────────────────── */
+#rage-panel {
+  border-color: var(--border);
+  transition: border-color .3s, background .3s;
+}
+#rage-panel.raging {
+  border-color: var(--blood);
+  background: #1a0e0e;
+}
+#rage-panel.raging .panel-header {
+  border-bottom-color: var(--blood-dim);
+}
+#rage-panel.raging .panel-title {
+  color: var(--blood-hi);
+}
+
+.rage-uses {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rage-use-pip {
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  border: 1.5px solid var(--stone);
+  background: none;
+  transition: background .2s, border-color .2s;
+}
+.rage-use-pip.filled {
+  background: var(--blood-hi);
+  border-color: var(--blood-hi);
+  box-shadow: 0 0 6px rgba(194,48,48,.4);
+}
+.rage-use-label {
+  font-family: var(--font-m);
+  font-size: 11px;
+  color: var(--stone);
+  margin-left: 4px;
+}
+
+.rage-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 22px 16px 18px;
+  background: var(--blood);
+  border: 2px solid var(--blood-hi);
+  border-radius: 10px;
+  color: var(--bone-hi);
+  font-family: var(--font-h);
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  transition: background .2s, border-color .2s;
+}
+.rage-btn:active { background: var(--blood-hi); transform: scale(.98); }
+.rage-btn.active {
+  background: #220808;
+  border-color: var(--blood-hi);
+  animation: ragePulse 2s ease-in-out infinite;
+}
+.rage-btn.active:active { transform: scale(.98); }
+.rage-btn-sub {
+  display: block;
+  font-family: var(--font-b);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .05em;
+  color: var(--bone-dim);
+  margin-top: 3px;
+  text-transform: none;
+}
+.rage-btn.active .rage-btn-sub { color: var(--blood-hi); opacity: .8; }
+
+.rage-status {
+  display: none;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--blood-bg);
+  border: 1px solid var(--blood-dim);
+  border-radius: 8px;
+}
+.rage-status.visible { display: flex; animation: fadeUp .25s ease both; }
+.rage-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-b);
+  font-size: 14px;
+  color: var(--bone);
+}
+.rage-status-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--blood-hi);
+  flex-shrink: 0;
+}
+
+/* ── THIS TURN PANEL ────────────────────────────────────────── */
+.weapon-display {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-hi);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.weapon-display-name {
+  font-family: var(--font-h);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--bone-hi);
+  margin-bottom: 6px;
+}
+.weapon-display-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.weapon-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+.weapon-stat-label {
+  font-family: var(--font-h);
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+.weapon-stat-val {
+  font-family: var(--font-m);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bone-hi);
+  line-height: 1.2;
+}
+.weapon-stat-val.raging { color: var(--blood-hi); }
+.weapon-mastery-row {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-b);
+  font-size: 12px;
+  color: var(--bone-dim);
+}
+.weapon-mastery-row strong {
+  color: var(--bone);
+  font-style: normal;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-info { flex: 1; }
+.toggle-name {
+  font-family: var(--font-h);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--bone);
+}
+.toggle-desc {
+  font-family: var(--font-b);
+  font-size: 12px;
+  color: var(--stone-hi);
+  margin-top: 2px;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  width: 46px; height: 26px;
+  background: var(--bg-inset);
+  border: 2px solid var(--stone-dim);
+  border-radius: 13px;
+  position: relative;
+  transition: background .2s, border-color .2s;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--stone);
+  transition: transform .2s, background .2s;
+}
+.toggle-switch.on {
+  background: var(--blood-bg);
+  border-color: var(--blood-hi);
+}
+.toggle-switch.on::after {
+  transform: translateX(20px);
+  background: var(--blood-hi);
+}
+
+/* Frenzy / Brutal banner */
+.frenzy-banner {
+  display: none;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(139,26,26,.25);
+  border: 1px solid var(--blood);
+  border-radius: 8px;
+  animation: fadeUp .2s ease both;
+}
+.frenzy-banner.visible { display: block; }
+.frenzy-title {
+  font-family: var(--font-h);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--blood-hi);
+  margin-bottom: 4px;
+}
+.frenzy-desc {
+  font-family: var(--font-b);
+  font-size: 13px;
+  color: var(--bone);
+}
+.frenzy-damage {
+  font-family: var(--font-m);
+  font-weight: 600;
+  color: var(--blood-hi);
+}
+
+.brutal-options {
+  display: none;
+  gap: 8px;
+  margin-top: 8px;
+}
+.brutal-options.visible { display: flex; }
+.brutal-opt-btn {
+  flex: 1;
+  padding: 10px 8px;
+  background: var(--bg-inset);
+  border: 1px solid var(--blood-dim);
+  border-radius: 8px;
+  color: var(--bone);
+  font-family: var(--font-b);
+  font-size: 12px;
+  text-align: center;
+  transition: background .15s;
+}
+.brutal-opt-btn:active { background: var(--blood-bg); }
+.brutal-opt-name {
+  font-family: var(--font-h);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--blood-hi);
+  display: block;
+  margin-bottom: 3px;
+}
+
+/* Savage Attacker */
+.savage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--bg-inset);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.savage-info {
+  flex: 1;
+}
+.savage-name {
+  font-family: var(--font-h);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  color: var(--bone-dim);
+}
+.savage-desc {
+  font-family: var(--font-b);
+  font-size: 11px;
+  color: var(--stone-hi);
+  margin-top: 2px;
+}
+.savage-btn {
+  padding: 7px 14px;
+  background: var(--bg-lift);
+  border: 1px solid var(--border-hi);
+  border-radius: 6px;
+  color: var(--bone);
+  font-family: var(--font-h);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  transition: background .15s;
+}
+.savage-btn:active { background: var(--stone-bg); }
+.savage-btn.used {
+  background: var(--bg-inset);
+  color: var(--stone);
+  border-color: var(--stone-dim);
+  text-decoration: line-through;
+}
+
+/* ── REACTIONS PANEL ────────────────────────────────────────── */
+.reaction-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.reaction-item:last-child { border-bottom: none; }
+.reaction-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+.reaction-name {
+  font-family: var(--font-h);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--bone);
+}
+.reaction-uses {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+.reaction-pip {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--stone);
+  background: none;
+  transition: all .2s;
+}
+.reaction-pip.filled {
+  background: var(--warn);
+  border-color: var(--warn);
+}
+.reaction-desc {
+  font-family: var(--font-b);
+  font-size: 12px;
+  color: var(--stone-hi);
+  margin-bottom: 8px;
+}
+.reaction-btn {
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-family: var(--font-h);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border: 1px solid;
+  transition: all .15s;
+}
+.reaction-btn.available {
+  background: var(--warn-bg);
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.reaction-btn.available:active { background: rgba(200,120,42,.3); }
+.reaction-btn.used {
+  background: var(--bg-inset);
+  border-color: var(--stone-dim);
+  color: var(--stone);
+  opacity: .6;
+}
+.reaction-btn.refresh {
+  background: var(--safe-bg);
+  border-color: var(--safe);
+  color: var(--safe);
+  margin-left: 6px;
+}
+.reaction-btn.refresh:active { opacity: .7; }
+
+/* Storm pips */
+.storm-pips {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.storm-pip {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--bg-inset);
+  border: 1px solid var(--stone-dim);
+  transition: all .2s;
+}
+.storm-pip.filled {
+  background: var(--stone-hi);
+  border-color: var(--stone-hi);
+  box-shadow: 0 0 6px rgba(138,132,128,.3);
+}
+
+/* ── RESOURCES PANEL ────────────────────────────────────────── */
+.resource-item {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.resource-item:last-child { border-bottom: none; }
+.resource-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.resource-name {
+  font-family: var(--font-h);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: var(--bone);
+}
+.resource-tag {
+  font-family: var(--font-h);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--stone-bg);
+  color: var(--stone-hi);
+  border: 1px solid var(--stone-dim);
+}
+.resource-desc {
+  font-family: var(--font-b);
+  font-size: 12px;
+  color: var(--stone-hi);
+  margin-bottom: 8px;
+}
+.resource-pips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.resource-pip {
+  width: 22px; height: 22px;
+  border-radius: 4px;
+  border: 1.5px solid var(--stone-dim);
+  background: var(--bg-inset);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-m);
+  font-size: 9px;
+  color: var(--stone);
+  transition: all .2s;
+  cursor: pointer;
+}
+.resource-pip.filled {
+  background: var(--stone-dim);
+  border-color: var(--stone);
+  color: var(--bone);
+}
+.resource-pip.filled:active { opacity: .6; }
+
+/* Large form button */
+.large-form-btn {
+  padding: 10px 18px;
+  border-radius: 7px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-hi);
+  color: var(--bone);
+  font-family: var(--font-h);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  transition: all .15s;
+}
+.large-form-btn:active { background: var(--bg-lift); }
+.large-form-btn.used {
+  color: var(--stone);
+  border-color: var(--stone-dim);
+  text-decoration: line-through;
+}
+.large-form-btn.active-form {
+  background: var(--bone-bg);
+  border-color: var(--bone-dim);
+  color: var(--bone-hi);
+}
+
+/* ── NEW TURN / LONG REST ─────────────────────────────────────── */
+.bottom-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+.new-turn-btn {
+  padding: 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--radius);
+  color: var(--stone-hi);
+  font-family: var(--font-h);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background .15s;
+}
+.new-turn-btn:active { background: var(--bg-lift); }
+.long-rest-btn {
+  padding: 16px;
+  background: var(--safe-bg);
+  border: 1px solid var(--safe);
+  border-radius: var(--radius);
+  color: var(--safe);
+  font-family: var(--font-h);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-align: center;
+  transition: background .15s;
+}
+.long-rest-btn:active { background: rgba(74,138,90,.25); }
+.btn-sub {
+  display: block;
+  font-family: var(--font-b);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .04em;
+  text-transform: none;
+  opacity: .6;
+  margin-top: 3px;
+}
+
+/* ── HP MODAL ─────────────────────────────────────────────────── */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-hi);
+  border-radius: 20px 20px 0 0;
+  padding: 28px 24px calc(var(--safe-bot) + 28px);
+  width: 100%;
+  max-width: 480px;
+  animation: slideUp .25s ease both;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--stone-dim);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+.modal-title {
+  font-family: var(--font-h);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-align: center;
+  color: var(--bone-hi);
+  margin-bottom: 20px;
+}
+.modal-input {
+  width: 100%;
+  background: var(--bg-inset);
+  border: 2px solid var(--border-hi);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: var(--font-m);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--bone-hi);
+  text-align: center;
+  outline: none;
+  transition: border-color .15s;
+  margin-bottom: 16px;
+}
+.modal-input:focus { border-color: var(--blood-hi); }
+.modal-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.modal-action-btn {
+  padding: 17px;
+  border-radius: 10px;
+  font-family: var(--font-h);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transition: all .15s;
+}
+.modal-action-btn.damage {
+  background: var(--danger-bg);
+  border: 2px solid var(--danger);
+  color: var(--danger);
+}
+.modal-action-btn.damage:active { background: rgba(192,32,32,.3); }
+.modal-action-btn.heal {
+  background: var(--safe-bg);
+  border: 2px solid var(--safe);
+  color: var(--safe);
+}
+.modal-action-btn.heal:active { background: rgba(74,138,90,.3); }
+.modal-cancel {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--border-hi);
+  border-radius: 10px;
+  color: var(--stone-hi);
+  font-family: var(--font-h);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .08em;
+}
+.modal-cancel:active { background: var(--bg-inset); }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading">
+  <span class="load-name">Lidtrix</span>
+  <span class="load-class">Goliath · Barbarian 10 · Path of the Berserker</span>
+  <div class="load-bar"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SETUP SCREEN                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="screen-setup" class="screen">
+  <div style="max-width:480px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 32px) 20px calc(env(safe-area-inset-bottom,0px) + 48px)">
+
+    <div class="setup-header fade-up">
+      <span class="setup-crest">⚔️</span>
+      <div class="setup-title">Lidtrix</div>
+      <div class="setup-subtitle">Goliath · Barbarian 10 · Path of the Berserker</div>
+    </div>
+
+    <!-- HP -->
+    <div class="setup-section fade-up" style="animation-delay:.1s">
+      <div class="setup-label">Starting Hit Points</div>
+      <div class="hp-input-wrap">
+        <span class="hp-input-icon">❤️</span>
+        <input type="number" class="hp-input-field" id="hp-start-input"
+               value="105" min="1" max="105" inputmode="numeric">
+        <span class="hp-input-max">/ 105</span>
+      </div>
+    </div>
+
+    <!-- Weapon -->
+    <div class="setup-section fade-up" style="animation-delay:.2s">
+      <div class="setup-label">Primary Weapon</div>
+      <div class="weapon-grid" id="weapon-grid">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+    <!-- Begin -->
+    <div class="fade-up" style="animation-delay:.35s">
+      <button class="begin-btn" id="btn-begin" disabled>
+        Enter Combat
+        <span class="begin-btn-sub">Choose a weapon to continue</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- COMBAT SCREEN                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="screen-combat" class="screen">
+
+  <!-- Chrome -->
+  <div class="combat-chrome" id="combat-chrome">
+    <div class="chrome-hp" id="chrome-hp-wrap">
+      <div class="chrome-hp-val" id="chrome-hp-val">95</div>
+      <div class="chrome-hp-max" id="chrome-hp-max">/95</div>
+    </div>
+    <div class="chrome-center">
+      <div class="chrome-name">Lidtrix</div>
+      <div class="chrome-class">Barbarian 10</div>
+    </div>
+    <div class="chrome-stats">
+      <div class="chrome-stat"><span>AC</span> 14</div>
+      <div class="chrome-stat"><span>Init</span> +1 ▲adv</div>
+    </div>
+  </div>
+
+  <div class="combat-content">
+
+    <!-- ── HP TAP ZONE ──── -->
+    <button id="btn-hp-tap" style="
+      width:100%;padding:18px 20px;
+      background:var(--bg-panel);border:1px solid var(--border-hi);
+      border-radius:var(--radius);
+      display:flex;align-items:center;justify-content:space-between;
+      transition:background .15s;
+    " onclick="openHPModal()">
+      <div style="text-align:left;">
+        <div style="font-family:var(--font-h);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-hi);margin-bottom:4px;">Hit Points</div>
+        <div style="display:flex;align-items:baseline;gap:4px;">
+          <span id="hp-display-big" style="font-family:var(--font-m);font-size:40px;font-weight:600;color:var(--bone-hi);line-height:1;">95</span>
+          <span id="hp-display-max" style="font-family:var(--font-m);font-size:20px;color:var(--stone);">/95</span>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div id="hp-bar-wrap" style="width:80px;height:8px;background:var(--bg-inset);border-radius:4px;overflow:hidden;margin-bottom:6px;">
+          <div id="hp-bar" style="height:100%;background:var(--safe);border-radius:4px;transition:width .3s,background .3s;width:100%;"></div>
+        </div>
+        <div style="font-family:var(--font-b);font-size:12px;color:var(--stone-hi);">Tap to adjust</div>
+        <div id="resistance-badge" style="display:none;font-family:var(--font-h);font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--blood-hi);margin-top:4px;">RESIST B/P/S</div>
+      </div>
+    </button>
+
+    <!-- ── RAGE PANEL ──── -->
+    <div class="panel" id="rage-panel">
+      <div class="panel-header">
+        <div class="panel-title">⚡ Rage</div>
+        <div class="rage-uses" id="rage-uses">
+          <!-- pips injected -->
+        </div>
+      </div>
+      <div class="panel-body">
+        <button class="rage-btn" id="rage-btn" onclick="toggleRage()">
+          <span id="rage-btn-text">RAGE</span>
+          <span class="rage-btn-sub" id="rage-btn-sub">Bonus Action · 1 min</span>
+        </button>
+        <div class="rage-status" id="rage-status">
+          <div class="rage-status-row"><div class="rage-status-dot"></div><span>+3 damage on STR melee & thrown attacks</span></div>
+          <div class="rage-status-row"><div class="rage-status-dot"></div><span>Resistance: Bludgeoning, Piercing, Slashing</span></div>
+          <div class="rage-status-row"><div class="rage-status-dot"></div><span>Immune: Charmed, Frightened (Mindless Rage)</span></div>
+          <div class="rage-status-row"><div class="rage-status-dot"></div><span>Instinctive Pounce: move up to half speed on entry</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── THIS TURN PANEL ──── -->
+    <div class="panel" id="turn-panel">
+      <div class="panel-header">
+        <div class="panel-title">🗡 This Turn</div>
+        <button id="btn-change-weapon" onclick="openSetup()" style="
+          font-family:var(--font-h);font-size:10px;font-weight:600;
+          letter-spacing:.1em;color:var(--stone-hi);
+          padding:4px 8px;border:1px solid var(--border-hi);border-radius:5px;
+          background:var(--bg-inset);
+        ">SWAP WEAPON</button>
+      </div>
+      <div class="panel-body">
+
+        <!-- Weapon display -->
+        <div class="weapon-display" id="weapon-display">
+          <div class="weapon-display-name" id="wd-name">—</div>
+          <div class="weapon-display-stats">
+            <div class="weapon-stat-item">
+              <div class="weapon-stat-label">To Hit</div>
+              <div class="weapon-stat-val" id="wd-hit">+8</div>
+            </div>
+            <div class="weapon-stat-item">
+              <div class="weapon-stat-label">Damage</div>
+              <div class="weapon-stat-val" id="wd-dmg">—</div>
+            </div>
+            <div class="weapon-stat-item">
+              <div class="weapon-stat-label">Raging Dmg</div>
+              <div class="weapon-stat-val raging" id="wd-rage-dmg">—</div>
+            </div>
+            <div class="weapon-stat-item">
+              <div class="weapon-stat-label">Type</div>
+              <div class="weapon-stat-val" id="wd-type">—</div>
+            </div>
+          </div>
+          <div class="weapon-mastery-row" id="wd-mastery"></div>
+        </div>
+
+        <!-- Reckless Attack -->
+        <div class="toggle-row">
+          <div class="toggle-info">
+            <div class="toggle-name">Reckless Attack</div>
+            <div class="toggle-desc">You have ADV on STR attacks · enemies have ADV on you</div>
+          </div>
+          <div class="toggle-switch" id="reckless-toggle" onclick="toggleReckless()"></div>
+        </div>
+
+        <!-- Frenzy / Brutal Strike banner -->
+        <div class="frenzy-banner" id="frenzy-banner">
+          <div class="frenzy-title">⚡ Frenzy Active</div>
+          <div class="frenzy-desc">First STR-based hit this turn: <span class="frenzy-damage" id="frenzy-dmg-text">+3d6 Slashing</span></div>
+          <div class="brutal-options" id="brutal-options">
+            <button class="brutal-opt-btn" onclick="logBrutal('forceful')">
+              <span class="brutal-opt-name">Forceful Blow</span>
+              +1d10 · Push target 15 ft
+            </button>
+            <button class="brutal-opt-btn" onclick="logBrutal('hamstring')">
+              <span class="brutal-opt-name">Hamstring Blow</span>
+              +1d10 · Target −15 ft speed until your next turn
+            </button>
+          </div>
+          <div style="margin-top:8px;font-family:var(--font-b);font-size:11px;color:var(--stone-hi);">
+            Or: <em>choose Brutal Strike</em> — forgo Reckless advantage for +1d10 + effect ↑
+          </div>
+        </div>
+
+        <!-- Savage Attacker -->
+        <div class="savage-row">
+          <div class="savage-info">
+            <div class="savage-name">Savage Attacker</div>
+            <div class="savage-desc">Once/turn: roll damage dice twice, take higher</div>
+          </div>
+          <button class="savage-btn" id="savage-btn" onclick="toggleSavage()">AVAILABLE</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── REACTIONS PANEL ──── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">⚡ Reactions</div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Retaliation -->
+        <div class="reaction-item">
+          <div class="reaction-top">
+            <div class="reaction-name">Retaliation</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="reaction-btn available" id="retaliation-btn" onclick="useRetaliation()">USE</button>
+              <button class="reaction-btn refresh" id="retaliation-refresh" onclick="refreshRetaliation()" style="display:none;">↺</button>
+            </div>
+          </div>
+          <div class="reaction-desc">When damaged within 5 ft: make one free melee attack (+8 hit · <span id="retaliation-dmg-display">1d12+4</span>)</div>
+        </div>
+
+        <!-- Storm's Thunder -->
+        <div class="reaction-item">
+          <div class="reaction-top">
+            <div class="reaction-name">Storm's Thunder</div>
+            <div style="font-family:var(--font-m);font-size:11px;color:var(--stone);" id="storm-count-label">4 / LR</div>
+          </div>
+          <div class="storm-pips" id="storm-pips"></div>
+          <div class="reaction-desc">When damaged within 60 ft: deal <strong>1d8 Thunder</strong> to that creature (no attack roll)</div>
+          <button class="reaction-btn available" id="storm-btn" onclick="useStorm()">USE STORM'S THUNDER</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── RESOURCES PANEL ──── -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📦 Resources</div>
+      </div>
+      <div class="panel-body">
+
+        <!-- Large Form -->
+        <div class="resource-item">
+          <div class="resource-top">
+            <div class="resource-name">Large Form</div>
+            <div class="resource-tag">1 / LR · Bonus Action</div>
+          </div>
+          <div class="resource-desc">Become Large for 10 min · +10 ft speed · Advantage on STR checks · Powerful Build</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="large-form-btn" id="large-form-btn" onclick="toggleLargeForm()">ACTIVATE</button>
+            <div id="large-form-status" style="font-family:var(--font-b);font-size:12px;color:var(--stone);"></div>
+          </div>
+        </div>
+
+        <!-- Hit Dice -->
+        <div class="resource-item">
+          <div class="resource-top">
+            <div class="resource-name">Hit Dice</div>
+            <div class="resource-tag">10d12 · Short Rest</div>
+          </div>
+          <div class="resource-desc">Spend during Short Rest: roll d12 + CON mod (+3) to recover HP</div>
+          <div class="resource-pips" id="hd-pips"></div>
+        </div>
+
+        <!-- Danger Sense reminder -->
+        <div class="resource-item" style="border-bottom:none;padding-bottom:0;">
+          <div class="resource-top">
+            <div class="resource-name">Danger Sense</div>
+            <div class="resource-tag">Passive</div>
+          </div>
+          <div class="resource-desc">Advantage on DEX saves unless Incapacitated · Feral Instinct: Advantage on Initiative</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── BOTTOM ACTIONS ──── -->
+    <div class="bottom-actions">
+      <button class="new-turn-btn" onclick="newTurn()">
+        NEW TURN
+        <span class="btn-sub">Reset reckless, savage, retaliation</span>
+      </button>
+      <button class="long-rest-btn" onclick="longRest()">
+        LONG REST
+        <span class="btn-sub">Full HP + all resources</span>
+      </button>
+    </div>
+
+  </div><!-- /combat-content -->
+</div><!-- /screen-combat -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HP MODAL                                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="hp-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Adjust Hit Points</div>
+    <input type="number" class="modal-input" id="hp-adj-input" placeholder="0" min="0" inputmode="numeric">
+    <div class="modal-btns">
+      <button class="modal-action-btn damage" onclick="applyDamage()">TAKE DAMAGE</button>
+      <button class="modal-action-btn heal" onclick="applyHeal()">HEAL</button>
+    </div>
+    <button class="modal-cancel" onclick="closeHPModal()">Cancel</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+// ── PWA MANIFEST ────────────────────────────────────────────
+(function(){
+  const m = {
+    name:'Lidtrix', short_name:'Lidtrix',
+    description:'Combat tracker for Lidtrix the Goliath Barbarian',
+    start_url:'.', display:'standalone',
+    background_color:'#0f0d0b', theme_color:'#0f0d0b',
+    icons:[{ src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%230f0d0b'/%3E%3Ctext x='96' y='130' text-anchor='middle' font-size='110' fill='%238b1a1a'%3E⚔%3C/text%3E%3C/svg%3E", sizes:'192x192', type:'image/svg+xml' }]
+  };
+  const link = document.createElement('link');
+  link.rel = 'manifest';
+  link.href = URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}));
+  document.head.appendChild(link);
+})();
+
+if ('serviceWorker' in navigator) {
+  const sw = `const C='lidtrix-v1';self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('fetch',e=>{if(e.request.url.includes('fonts.g')){e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+
+// ══════════════════════════════════════════════════════════════
+// CHARACTER DATA
+// ══════════════════════════════════════════════════════════════
+const CHAR = Object.freeze({
+  maxHP:          105,
+  ac:             14,
+  strMod:         4,
+  profBonus:      4,
+  rageDmgBonus:   3,
+  maxRage:        4,
+  maxStorm:       4,
+  maxHitDice:     10,
+});
+
+const WEAPONS = [
+  {
+    id: 'vicious-greataxe',
+    name: 'Vicious Greataxe ✦',
+    die: '1d12',
+    damType: 'Slashing',
+    magic: true,
+    mastery: 'Cleave',
+    masteryDesc: 'Hit a second creature within 5 ft of target for the same damage (no ability mod)',
+    special: 'Vicious: Roll max on damage die → +2d6 Slashing bonus damage',
+    reach: false,
+  },
+  {
+    id: 'greataxe',
+    name: 'Greataxe',
+    die: '1d12',
+    damType: 'Slashing',
+    magic: false,
+    mastery: 'Cleave',
+    masteryDesc: 'Hit a second creature within 5 ft of target for the same damage (no ability mod)',
+    special: null,
+    reach: false,
+  },
+  {
+    id: 'battleaxe1',
+    name: 'Battleaxe (one-hand)',
+    die: '1d8',
+    damType: 'Slashing',
+    magic: false,
+    mastery: 'Topple',
+    masteryDesc: 'Con save DC 16 or target is Prone',
+    special: null,
+    reach: false,
+  },
+  {
+    id: 'battleaxe2',
+    name: 'Battleaxe (two-hand)',
+    die: '1d10',
+    damType: 'Slashing',
+    magic: false,
+    mastery: 'Topple',
+    masteryDesc: 'Con save DC 16 or target is Prone',
+    special: null,
+    reach: false,
+  },
+  {
+    id: 'unarmed',
+    name: 'Unarmed Strike',
+    die: null,
+    flatDmg: 5,
+    damType: 'Bludgeoning',
+    magic: false,
+    mastery: null,
+    masteryDesc: null,
+    special: null,
+    reach: false,
+  },
+];
+
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+const state = {
+  hp:             CHAR.maxHP,
+  maxHP:          CHAR.maxHP,
+
+  rageRemaining:  CHAR.maxRage,
+  raging:         false,
+
+  recklessOn:     false,
+  savageUsed:     false,
+  retaliationUsed:false,
+  largeFormUsed:  false,
+  largeFormActive:false,
+
+  stormRemaining: CHAR.maxStorm,
+  hitDiceRemaining: CHAR.maxHitDice,
+
+  selectedWeapon: null,
+};
+
+// ══════════════════════════════════════════════════════════════
+// SETUP SCREEN
+// ══════════════════════════════════════════════════════════════
+function buildWeaponGrid() {
+  const grid = document.getElementById('weapon-grid');
+  grid.innerHTML = '';
+  WEAPONS.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'weapon-card';
+    card.dataset.weaponId = w.id;
+
+    const dmgBase = w.die ? `${w.die}+${CHAR.strMod}` : `${w.flatDmg}`;
+    const masteryHtml = w.mastery
+      ? `<div class="weapon-mastery-badge">${w.mastery}</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="weapon-radio"><div class="weapon-radio-dot"></div></div>
+      <div class="weapon-info">
+        <div class="weapon-name">${w.name}</div>
+        <div class="weapon-stats">+8 to hit · ${dmgBase} ${w.damType}${w.reach ? ' · Reach' : ''}${w.special ? ' · ✦ Magic' : ''}</div>
+      </div>
+      ${masteryHtml}
+    `;
+    card.addEventListener('click', () => selectWeapon(w.id));
+    grid.appendChild(card);
+  });
+}
+
+function selectWeapon(id) {
+  state.selectedWeapon = WEAPONS.find(w => w.id === id);
+  document.querySelectorAll('.weapon-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.weaponId === id);
+  });
+  const btn = document.getElementById('btn-begin');
+  btn.disabled = false;
+  btn.querySelector('.begin-btn-sub').textContent = `${state.selectedWeapon.name} ready`;
+}
+
+function openSetup() {
+  showScreen('screen-setup');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ══════════════════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function enterCombat() {
+  if (!state.selectedWeapon) return;
+  const hpInput = document.getElementById('hp-start-input');
+  state.hp = Math.min(parseInt(hpInput.value) || CHAR.maxHP, CHAR.maxHP);
+  state.maxHP = CHAR.maxHP;
+  renderAll();
+  showScreen('screen-combat');
+}
+
+// ══════════════════════════════════════════════════════════════
+// RAGE
+// ══════════════════════════════════════════════════════════════
+function toggleRage() {
+  if (!state.raging) {
+    if (state.rageRemaining <= 0) {
+      alert('No Rage uses remaining. Take a Long Rest to recover.');
+      return;
+    }
+    state.raging = true;
+    state.rageRemaining--;
+    // Reset reckless on new rage entry
+    state.recklessOn = false;
+    state.savageUsed = false;
+  } else {
+    if (!confirm('End Rage? (Bonus Action)')) return;
+    state.raging = false;
+    state.recklessOn = false;
+  }
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// THIS TURN
+// ══════════════════════════════════════════════════════════════
+function toggleReckless() {
+  state.recklessOn = !state.recklessOn;
+  renderAll();
+}
+
+function toggleSavage() {
+  state.savageUsed = !state.savageUsed;
+  renderAll();
+}
+
+function logBrutal(type) {
+  const w = state.selectedWeapon;
+  const effect = type === 'forceful'
+    ? 'Forceful Blow: target pushed 15 ft'
+    : 'Hamstring Blow: target −15 ft speed until your next turn';
+  alert(`Brutal Strike — ${w.name}\n+1d10 ${w.damType}\n${effect}\n\n(Reckless Attack advantage is forfeited for this roll.)`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// REACTIONS
+// ══════════════════════════════════════════════════════════════
+function useRetaliation() {
+  if (state.retaliationUsed) return;
+  state.retaliationUsed = true;
+  renderAll();
+}
+
+function refreshRetaliation() {
+  state.retaliationUsed = false;
+  renderAll();
+}
+
+function useStorm() {
+  if (state.stormRemaining <= 0) return;
+  state.stormRemaining--;
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// LARGE FORM
+// ══════════════════════════════════════════════════════════════
+function toggleLargeForm() {
+  if (state.largeFormUsed && !state.largeFormActive) return; // spent
+  if (!state.largeFormUsed) {
+    state.largeFormUsed = true;
+    state.largeFormActive = true;
+  } else if (state.largeFormActive) {
+    // end it manually before 10 min
+    if (!confirm('End Large Form early?')) return;
+    state.largeFormActive = false;
+  }
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// HP
+// ══════════════════════════════════════════════════════════════
+function openHPModal() {
+  document.getElementById('hp-adj-input').value = '';
+  document.getElementById('hp-modal').classList.add('open');
+  document.getElementById('hp-adj-input').focus();
+}
+
+function closeHPModal() {
+  document.getElementById('hp-modal').classList.remove('open');
+}
+
+function applyDamage() {
+  const amt = parseInt(document.getElementById('hp-adj-input').value) || 0;
+  if (amt <= 0) { closeHPModal(); return; }
+  // Note: rage resistance to B/P/S is the player's job to halve before entering
+  state.hp = Math.max(0, state.hp - amt);
+  closeHPModal();
+  renderAll();
+  if (state.hp === 0) {
+    setTimeout(() => alert('💀 ZERO HP — DEATH SAVES\n\nRoll a D20 each turn.\n10+ = Success · 9− = Failure\n3 Successes = Stable · 3 Failures = Dead'), 200);
+  }
+}
+
+function applyHeal() {
+  const amt = parseInt(document.getElementById('hp-adj-input').value) || 0;
+  if (amt <= 0) { closeHPModal(); return; }
+  state.hp = Math.min(state.maxHP, state.hp + amt);
+  closeHPModal();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// TURN / REST
+// ══════════════════════════════════════════════════════════════
+function newTurn() {
+  state.recklessOn = false;
+  state.savageUsed = false;
+  state.retaliationUsed = false;
+  renderAll();
+  // Brief visual flash
+  const btn = document.querySelector('.new-turn-btn');
+  btn.style.background = 'var(--stone-bg)';
+  setTimeout(() => { btn.style.background = ''; }, 200);
+}
+
+function longRest() {
+  if (!confirm('Long Rest? This will fully restore HP and all resources.')) return;
+  state.hp = state.maxHP;
+  state.rageRemaining = CHAR.maxRage;
+  state.raging = false;
+  state.recklessOn = false;
+  state.savageUsed = false;
+  state.retaliationUsed = false;
+  state.largeFormUsed = false;
+  state.largeFormActive = false;
+  state.stormRemaining = CHAR.maxStorm;
+  state.hitDiceRemaining = CHAR.maxHitDice;
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+function renderAll() {
+  renderHP();
+  renderRage();
+  renderWeapon();
+  renderThisTurn();
+  renderReactions();
+  renderResources();
+}
+
+function renderHP() {
+  const pct = state.hp / state.maxHP;
+  const hpStr = String(state.hp);
+  const maxStr = `/${state.maxHP}`;
+
+  document.getElementById('hp-display-big').textContent = hpStr;
+  document.getElementById('hp-display-max').textContent = maxStr;
+  document.getElementById('chrome-hp-val').textContent = hpStr;
+  document.getElementById('chrome-hp-max').textContent = maxStr;
+
+  const bar = document.getElementById('hp-bar');
+  bar.style.width = (pct * 100) + '%';
+  bar.style.background = pct > 0.5 ? 'var(--safe)' : pct > 0.25 ? 'var(--warn)' : 'var(--danger)';
+
+  const valEl = document.getElementById('chrome-hp-val');
+  valEl.className = 'chrome-hp-val' + (pct <= 0.25 ? ' danger' : pct <= 0.5 ? ' low' : '');
+
+  const bigEl = document.getElementById('hp-display-big');
+  bigEl.style.color = pct <= 0.25 ? 'var(--danger)' : pct <= 0.5 ? 'var(--warn)' : 'var(--bone-hi)';
+
+  // Resistance badge
+  document.getElementById('resistance-badge').style.display = state.raging ? 'block' : 'none';
+}
+
+function renderRage() {
+  // Chrome
+  const chrome = document.getElementById('combat-chrome');
+  chrome.classList.toggle('raging', state.raging);
+
+  const panel = document.getElementById('rage-panel');
+  panel.classList.toggle('raging', state.raging);
+
+  // Pips
+  const pipsEl = document.getElementById('rage-uses');
+  pipsEl.innerHTML = '';
+  for (let i = 0; i < CHAR.maxRage; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'rage-use-pip' + (i < state.rageRemaining ? ' filled' : '');
+    pipsEl.appendChild(pip);
+  }
+  const label = document.createElement('div');
+  label.className = 'rage-use-label';
+  label.textContent = `${state.rageRemaining}/${CHAR.maxRage}`;
+  pipsEl.appendChild(label);
+
+  // Rage button
+  const rageBtn = document.getElementById('rage-btn');
+  const rageBtnText = document.getElementById('rage-btn-text');
+  const rageBtnSub = document.getElementById('rage-btn-sub');
+
+  rageBtn.classList.toggle('active', state.raging);
+  if (state.raging) {
+    rageBtnText.textContent = 'END RAGE';
+    rageBtnSub.textContent = 'Bonus Action to end';
+    rageBtn.classList.add('rage-glow');
+  } else {
+    rageBtnText.textContent = 'RAGE';
+    rageBtnSub.textContent = state.rageRemaining > 0 ? 'Bonus Action · 1 min' : '— No uses remaining —';
+    rageBtn.classList.remove('rage-glow');
+  }
+
+  document.getElementById('rage-status').classList.toggle('visible', state.raging);
+}
+
+function renderWeapon() {
+  const w = state.selectedWeapon;
+  if (!w) return;
+
+  document.getElementById('wd-name').textContent = w.name;
+  const hitBonus = 8; // STR+4 + Prof+4
+  document.getElementById('wd-hit').textContent = `+${hitBonus}`;
+  document.getElementById('wd-type').textContent = w.damType;
+
+  const baseDmg = w.die ? `${w.die}+${CHAR.strMod}` : `${w.flatDmg}`;
+  const rageDmg = w.die ? `${w.die}+${CHAR.strMod + CHAR.rageDmgBonus}` : `${w.flatDmg + CHAR.rageDmgBonus}`;
+
+  document.getElementById('wd-dmg').textContent = baseDmg;
+  document.getElementById('wd-rage-dmg').textContent = rageDmg;
+  document.getElementById('wd-rage-dmg').style.color = state.raging ? 'var(--blood-hi)' : 'var(--bone-dim)';
+
+  const masteryEl = document.getElementById('wd-mastery');
+  let masteryHtml = '';
+  if (w.mastery) {
+    masteryHtml += `<strong>${w.mastery}:</strong> ${w.masteryDesc}`;
+  }
+  if (w.special) {
+    masteryHtml += (masteryHtml ? '<br>' : '') + `<span style="color:var(--warn)">${w.special}</span>`;
+  }
+  if (masteryHtml) {
+    masteryEl.innerHTML = masteryHtml;
+    masteryEl.style.display = '';
+  } else {
+    masteryEl.style.display = 'none';
+  }
+
+  // Retaliation damage display
+  const retDmg = w.die ? `${w.die}+${CHAR.strMod}` : `${w.flatDmg}`;
+  document.getElementById('retaliation-dmg-display').textContent = retDmg;
+}
+
+function renderThisTurn() {
+  const reckEl = document.getElementById('reckless-toggle');
+  reckEl.classList.toggle('on', state.recklessOn);
+
+  const savageBtn = document.getElementById('savage-btn');
+  if (state.savageUsed) {
+    savageBtn.className = 'savage-btn used';
+    savageBtn.textContent = 'USED';
+  } else {
+    savageBtn.className = 'savage-btn';
+    savageBtn.textContent = 'AVAILABLE';
+  }
+
+  // Frenzy / Brutal Strike banner
+  const showFrenzy = state.raging && state.recklessOn;
+  const frenzyBanner = document.getElementById('frenzy-banner');
+  frenzyBanner.classList.toggle('visible', showFrenzy);
+
+  if (showFrenzy && state.selectedWeapon) {
+    document.getElementById('frenzy-dmg-text').textContent = `+3d6 ${state.selectedWeapon.damType}`;
+    document.getElementById('brutal-options').classList.add('visible');
+  } else {
+    document.getElementById('brutal-options').classList.remove('visible');
+  }
+}
+
+function renderReactions() {
+  const retBtn = document.getElementById('retaliation-btn');
+  const retRefresh = document.getElementById('retaliation-refresh');
+  if (state.retaliationUsed) {
+    retBtn.className = 'reaction-btn used';
+    retBtn.textContent = 'USED';
+    retRefresh.style.display = '';
+  } else {
+    retBtn.className = 'reaction-btn available';
+    retBtn.textContent = 'USE';
+    retRefresh.style.display = 'none';
+  }
+
+  // Storm pips
+  const pipsEl = document.getElementById('storm-pips');
+  pipsEl.innerHTML = '';
+  for (let i = 0; i < CHAR.maxStorm; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'storm-pip' + (i < state.stormRemaining ? ' filled' : '');
+    pipsEl.appendChild(pip);
+  }
+  document.getElementById('storm-count-label').textContent = `${state.stormRemaining} / LR`;
+  const stormBtn = document.getElementById('storm-btn');
+  if (state.stormRemaining <= 0) {
+    stormBtn.className = 'reaction-btn used';
+    stormBtn.textContent = 'STORM\'S THUNDER SPENT';
+  } else {
+    stormBtn.className = 'reaction-btn available';
+    stormBtn.textContent = 'USE STORM\'S THUNDER';
+  }
+}
+
+function renderResources() {
+  // Large Form
+  const lfBtn = document.getElementById('large-form-btn');
+  const lfStatus = document.getElementById('large-form-status');
+  if (!state.largeFormUsed) {
+    lfBtn.className = 'large-form-btn';
+    lfBtn.textContent = 'ACTIVATE';
+    lfStatus.textContent = '';
+  } else if (state.largeFormActive) {
+    lfBtn.className = 'large-form-btn active-form';
+    lfBtn.textContent = 'ACTIVE — END EARLY';
+    lfStatus.textContent = 'Large · Speed +10 · ADV STR checks';
+  } else {
+    lfBtn.className = 'large-form-btn used';
+    lfBtn.textContent = 'USED';
+    lfStatus.textContent = 'Recovers on Long Rest';
+  }
+
+  // Hit Dice
+  const hdEl = document.getElementById('hd-pips');
+  hdEl.innerHTML = '';
+  for (let i = 0; i < CHAR.maxHitDice; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'resource-pip' + (i < state.hitDiceRemaining ? ' filled' : '');
+    pip.textContent = 'd12';
+    if (i < state.hitDiceRemaining) {
+      pip.addEventListener('click', () => spendHitDie(i));
+    }
+    hdEl.appendChild(pip);
+  }
+}
+
+function spendHitDie(i) {
+  if (state.hitDiceRemaining <= 0) return;
+  const roll = Math.ceil(Math.random() * 12) + 3; // d12 + CON mod +3
+  state.hitDiceRemaining--;
+  state.hp = Math.min(state.maxHP, state.hp + roll);
+  renderAll();
+  alert(`Hit Die Result: d12+2 = ${roll}\nHP restored to ${state.hp}/${state.maxHP}`);
+}
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  buildWeaponGrid();
+  showScreen('screen-setup');
+
+  document.getElementById('btn-begin').addEventListener('click', enterCombat);
+
+  // HP modal keyboard
+  document.getElementById('hp-adj-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { /* handled by buttons */ }
+  });
+
+  // Close modal on overlay tap
+  document.getElementById('hp-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeHPModal();
+  });
+
+  // Hide loading
+  document.getElementById('loading').style.display = 'none';
+
+  console.log('[Lidtrix v1.0] Ready. Enter the fray.');
+});
+</script>
+</body>
+</html>
