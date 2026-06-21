@@ -15,9 +15,9 @@
 
 <style>
 /* ============================================================
-   LIDTRIX — GOLIATH · BARBARIAN 10 · PATH OF THE BERSERKER
+   LIDTRIX — GOLIATH · BARBARIAN 12 · PATH OF THE BERSERKER
    Theme: Hewn stone · dried blood · worn bone · primal fury
-   Mobile PWA v1.0
+   Mobile PWA v2.0 · laptop-aware · persistent
    ============================================================ */
 
 :root {
@@ -1084,6 +1084,64 @@ input  { font-family: inherit; }
   letter-spacing: .08em;
 }
 .modal-cancel:active { background: var(--bg-inset); }
+
+/* ── TACTICAL READ (recommendation engine) ──────────────────── */
+.rec-list { display: flex; flex-direction: column; gap: 8px; }
+.rec-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--stone);
+  border-radius: 8px;
+  font-family: var(--font-b);
+  font-size: 13px;
+  color: var(--bone);
+  line-height: 1.35;
+}
+.rec-item .rec-tag {
+  font-family: var(--font-h);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  padding-top: 1px;
+  width: 58px;
+  color: var(--stone-hi);
+}
+.rec-item.emergency { border-left-color: var(--danger); background: var(--danger-bg); }
+.rec-item.emergency .rec-tag { color: var(--danger); }
+.rec-item.action    { border-left-color: var(--blood-hi); }
+.rec-item.action .rec-tag { color: var(--blood-hi); }
+.rec-item.reaction  { border-left-color: var(--warn); }
+.rec-item.reaction .rec-tag { color: var(--warn); }
+.rec-item.minor     { border-left-color: var(--stone-hi); }
+.rec-item.warn      { border-left-color: var(--warn); background: var(--warn-bg); }
+.rec-item.warn .rec-tag { color: var(--warn); }
+
+/* ── TWO-COLUMN COMBAT LAYOUT ───────────────────────────────── */
+/* Mobile (default): single column, columns just stack in DOM order */
+.combat-cols { display: flex; flex-direction: column; gap: 12px; }
+.col-main, .col-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+
+/* Laptop / desktop: widen and lay advice + trackers side-by-side */
+@media (min-width: 900px) {
+  .combat-content { max-width: 940px; }
+  .combat-cols {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .col-main { flex: 1 1 auto; }
+  .col-side {
+    flex: 0 0 360px;
+    position: sticky;
+    top: calc(var(--chrome-h) + var(--safe-top) + 16px);
+  }
+  /* HP tap zone spans full width above the columns */
+}
 </style>
 </head>
 <body>
@@ -1091,7 +1149,7 @@ input  { font-family: inherit; }
 <!-- LOADING -->
 <div id="loading">
   <span class="load-name">Lidtrix</span>
-  <span class="load-class">Goliath · Barbarian 10 · Path of the Berserker</span>
+  <span class="load-class">Goliath · Barbarian 12 · Path of the Berserker</span>
   <div class="load-bar"></div>
 </div>
 
@@ -1104,7 +1162,7 @@ input  { font-family: inherit; }
     <div class="setup-header fade-up">
       <span class="setup-crest">⚔️</span>
       <div class="setup-title">Lidtrix</div>
-      <div class="setup-subtitle">Goliath · Barbarian 10 · Path of the Berserker</div>
+      <div class="setup-subtitle">Goliath · Barbarian 12 · Path of the Berserker</div>
     </div>
 
     <!-- HP -->
@@ -1113,8 +1171,8 @@ input  { font-family: inherit; }
       <div class="hp-input-wrap">
         <span class="hp-input-icon">❤️</span>
         <input type="number" class="hp-input-field" id="hp-start-input"
-               value="105" min="1" max="105" inputmode="numeric">
-        <span class="hp-input-max">/ 105</span>
+               value="125" min="1" max="125" inputmode="numeric">
+        <span class="hp-input-max">/ 125</span>
       </div>
     </div>
 
@@ -1145,16 +1203,16 @@ input  { font-family: inherit; }
   <!-- Chrome -->
   <div class="combat-chrome" id="combat-chrome">
     <div class="chrome-hp" id="chrome-hp-wrap">
-      <div class="chrome-hp-val" id="chrome-hp-val">95</div>
-      <div class="chrome-hp-max" id="chrome-hp-max">/95</div>
+      <div class="chrome-hp-val" id="chrome-hp-val">125</div>
+      <div class="chrome-hp-max" id="chrome-hp-max">/125</div>
     </div>
     <div class="chrome-center">
       <div class="chrome-name">Lidtrix</div>
-      <div class="chrome-class">Barbarian 10</div>
+      <div class="chrome-class">Barbarian 12</div>
     </div>
     <div class="chrome-stats">
-      <div class="chrome-stat"><span>AC</span> 14</div>
-      <div class="chrome-stat"><span>Init</span> +1 ▲adv</div>
+      <div class="chrome-stat"><span>AC</span> 17</div>
+      <div class="chrome-stat"><span>Init</span> +2 ▲adv</div>
     </div>
   </div>
 
@@ -1171,8 +1229,8 @@ input  { font-family: inherit; }
       <div style="text-align:left;">
         <div style="font-family:var(--font-h);font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--stone-hi);margin-bottom:4px;">Hit Points</div>
         <div style="display:flex;align-items:baseline;gap:4px;">
-          <span id="hp-display-big" style="font-family:var(--font-m);font-size:40px;font-weight:600;color:var(--bone-hi);line-height:1;">95</span>
-          <span id="hp-display-max" style="font-family:var(--font-m);font-size:20px;color:var(--stone);">/95</span>
+          <span id="hp-display-big" style="font-family:var(--font-m);font-size:40px;font-weight:600;color:var(--bone-hi);line-height:1;">125</span>
+          <span id="hp-display-max" style="font-family:var(--font-m);font-size:20px;color:var(--stone);">/125</span>
         </div>
       </div>
       <div style="text-align:right;">
@@ -1183,6 +1241,22 @@ input  { font-family: inherit; }
         <div id="resistance-badge" style="display:none;font-family:var(--font-h);font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--blood-hi);margin-top:4px;">RESIST B/P/S</div>
       </div>
     </button>
+
+    <!-- ── TWO-COLUMN WRAP (single col on mobile, side-by-side on laptop) ── -->
+    <div class="combat-cols">
+
+      <!-- LEFT: recommendations + offense -->
+      <div class="col-main">
+
+    <!-- ── TACTICAL READ PANEL ──── -->
+    <div class="panel" id="rec-panel">
+      <div class="panel-header">
+        <div class="panel-title">🎯 Tactical Read</div>
+      </div>
+      <div class="panel-body" id="rec-body">
+        <!-- recommendations injected -->
+      </div>
+    </div>
 
     <!-- ── RAGE PANEL ──── -->
     <div class="panel" id="rage-panel">
@@ -1202,6 +1276,7 @@ input  { font-family: inherit; }
           <div class="rage-status-row"><div class="rage-status-dot"></div><span>Resistance: Bludgeoning, Piercing, Slashing</span></div>
           <div class="rage-status-row"><div class="rage-status-dot"></div><span>Immune: Charmed, Frightened (Mindless Rage)</span></div>
           <div class="rage-status-row"><div class="rage-status-dot"></div><span>Instinctive Pounce: move up to half speed on entry</span></div>
+          <div class="rage-status-row"><div class="rage-status-dot"></div><span id="rage-status-relentless">Relentless Rage: if you drop to 0 HP, DC 10 Con save → HP becomes 24</span></div>
         </div>
       </div>
     </div>
@@ -1283,6 +1358,11 @@ input  { font-family: inherit; }
       </div>
     </div>
 
+      </div><!-- /col-main -->
+
+      <!-- RIGHT: trackers / status (persistent sidebar on laptop) -->
+      <div class="col-side">
+
     <!-- ── REACTIONS PANEL ──── -->
     <div class="panel">
       <div class="panel-header">
@@ -1336,11 +1416,24 @@ input  { font-family: inherit; }
           </div>
         </div>
 
+        <!-- Relentless Rage (L11) -->
+        <div class="resource-item">
+          <div class="resource-top">
+            <div class="resource-name">Relentless Rage</div>
+            <div class="resource-tag" id="relentless-tag">Next DC 10</div>
+          </div>
+          <div class="resource-desc">If you drop to 0 HP while Raging (and don't die outright): make a CON save vs the current DC. On success, HP becomes 24 instead. DC +5 each use · resets on rest.</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button class="large-form-btn" id="relentless-btn" onclick="useRelentlessRage()">SURVIVED → HP 24</button>
+            <div id="relentless-status" style="font-family:var(--font-b);font-size:12px;color:var(--stone);"></div>
+          </div>
+        </div>
+
         <!-- Hit Dice -->
         <div class="resource-item">
           <div class="resource-top">
             <div class="resource-name">Hit Dice</div>
-            <div class="resource-tag">10d12 · Short Rest</div>
+            <div class="resource-tag">12d12 · Short Rest</div>
           </div>
           <div class="resource-desc">Spend during Short Rest: roll d12 + CON mod (+3) to recover HP</div>
           <div class="resource-pips" id="hd-pips"></div>
@@ -1369,6 +1462,9 @@ input  { font-family: inherit; }
         <span class="btn-sub">Full HP + all resources</span>
       </button>
     </div>
+
+      </div><!-- /col-side -->
+    </div><!-- /combat-cols -->
 
   </div><!-- /combat-content -->
 </div><!-- /screen-combat -->
@@ -1408,7 +1504,7 @@ input  { font-family: inherit; }
 })();
 
 if ('serviceWorker' in navigator) {
-  const sw = `const C='lidtrix-v1';self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('fetch',e=>{if(e.request.url.includes('fonts.g')){e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
+  const sw = `const C='lidtrix-v2';self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('fetch',e=>{if(e.request.url.includes('fonts.g')){e.respondWith(caches.open(C).then(c=>c.match(e.request).then(r=>r||fetch(e.request).then(res=>{c.put(e.request,res.clone());return res;}))));}});`;
   navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
 }
 
@@ -1416,14 +1512,15 @@ if ('serviceWorker' in navigator) {
 // CHARACTER DATA
 // ══════════════════════════════════════════════════════════════
 const CHAR = Object.freeze({
-  maxHP:          105,
-  ac:             14,
+  maxHP:          125,
+  ac:             17,
   strMod:         4,
   profBonus:      4,
-  rageDmgBonus:   3,
-  maxRage:        4,
-  maxStorm:       4,
-  maxHitDice:     10,
+  rageDmgBonus:   3,   // L9–15 → +3
+  maxRage:        5,   // L12 → 5 rages / Long Rest
+  maxStorm:       4,   // Giant Ancestry uses = proficiency bonus
+  maxHitDice:     12,  // 12d12 at level 12
+  relentlessHP:   24,  // Relentless Rage: HP becomes 2× Barbarian level
 });
 
 const WEAPONS = [
@@ -1504,8 +1601,80 @@ const state = {
   stormRemaining: CHAR.maxStorm,
   hitDiceRemaining: CHAR.maxHitDice,
 
+  relentlessUses: 0,   // each use raises the CON save DC by 5
+
   selectedWeapon: null,
+  inCombat:       false,  // true once combat begins → resume here on reload
 };
+
+// ══════════════════════════════════════════════════════════════
+// PERSISTENCE  (versioned localStorage · single key)
+// ══════════════════════════════════════════════════════════════
+const SAVE_KEY = 'lidtrix.state.v12';
+
+function saveState() {
+  try {
+    const blob = {
+      v: 12,
+      hp: state.hp,
+      maxHP: state.maxHP,
+      rageRemaining: state.rageRemaining,
+      raging: state.raging,
+      recklessOn: state.recklessOn,
+      savageUsed: state.savageUsed,
+      retaliationUsed: state.retaliationUsed,
+      largeFormUsed: state.largeFormUsed,
+      largeFormActive: state.largeFormActive,
+      stormRemaining: state.stormRemaining,
+      hitDiceRemaining: state.hitDiceRemaining,
+      relentlessUses: state.relentlessUses,
+      selectedWeapon: state.selectedWeapon ? state.selectedWeapon.id : null,
+      inCombat: state.inCombat,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(blob));
+  } catch (e) { /* storage full / unavailable — ignore */ }
+}
+
+function loadState() {
+  let blob;
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    blob = JSON.parse(raw);
+  } catch (e) { return false; }
+
+  // Version / sanity guard — discard stale or malformed saves
+  if (!blob || blob.v !== 12 || typeof blob.hp !== 'number') {
+    try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+    return false;
+  }
+
+  state.hp              = Math.min(blob.hp, CHAR.maxHP);
+  state.maxHP           = CHAR.maxHP;
+  state.rageRemaining   = clampInt(blob.rageRemaining, CHAR.maxRage);
+  state.raging          = !!blob.raging;
+  state.recklessOn      = !!blob.recklessOn;
+  state.savageUsed      = !!blob.savageUsed;
+  state.retaliationUsed = !!blob.retaliationUsed;
+  state.largeFormUsed   = !!blob.largeFormUsed;
+  state.largeFormActive = !!blob.largeFormActive;
+  state.stormRemaining  = clampInt(blob.stormRemaining, CHAR.maxStorm);
+  state.hitDiceRemaining= clampInt(blob.hitDiceRemaining, CHAR.maxHitDice);
+  state.relentlessUses  = Math.max(0, blob.relentlessUses | 0);
+  state.selectedWeapon  = WEAPONS.find(w => w.id === blob.selectedWeapon) || null;
+  state.inCombat        = !!blob.inCombat;
+  return true;
+}
+
+function clampInt(n, max) {
+  n = parseInt(n, 10);
+  if (isNaN(n) || n < 0) return 0;
+  return Math.min(n, max);
+}
+
+function clearSave() {
+  try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+}
 
 // ══════════════════════════════════════════════════════════════
 // SETUP SCREEN
@@ -1563,6 +1732,7 @@ function enterCombat() {
   const hpInput = document.getElementById('hp-start-input');
   state.hp = Math.min(parseInt(hpInput.value) || CHAR.maxHP, CHAR.maxHP);
   state.maxHP = CHAR.maxHP;
+  state.inCombat = true;
   renderAll();
   showScreen('screen-combat');
 }
@@ -1647,6 +1817,21 @@ function toggleLargeForm() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// RELENTLESS RAGE  (Barbarian L11)
+// ══════════════════════════════════════════════════════════════
+function relentlessDC() {
+  return 10 + 5 * state.relentlessUses;
+}
+
+function useRelentlessRage() {
+  const dc = relentlessDC();
+  if (!confirm(`Relentless Rage — make a DC ${dc} CON save.\n\nOK = you SUCCEEDED → HP becomes ${CHAR.relentlessHP}.\n(Cancel if you failed — roll Death Saves instead.)`)) return;
+  state.hp = CHAR.relentlessHP;
+  state.relentlessUses++;
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════════
 // HP
 // ══════════════════════════════════════════════════════════════
 function openHPModal() {
@@ -1667,7 +1852,11 @@ function applyDamage() {
   closeHPModal();
   renderAll();
   if (state.hp === 0) {
-    setTimeout(() => alert('💀 ZERO HP — DEATH SAVES\n\nRoll a D20 each turn.\n10+ = Success · 9− = Failure\n3 Successes = Stable · 3 Failures = Dead'), 200);
+    if (state.raging) {
+      setTimeout(() => alert(`💀 DOWN WHILE RAGING — RELENTLESS RAGE\n\nMake a DC ${relentlessDC()} CON save.\nSuccess → HP becomes ${CHAR.relentlessHP} instead of dropping.\n\nUse the "SURVIVED → HP 24" button in Resources if you make it.\nOtherwise: Death Saves (d20, 10+ = success).`), 200);
+    } else {
+      setTimeout(() => alert('💀 ZERO HP — DEATH SAVES\n\nRoll a D20 each turn.\n10+ = Success · 9− = Failure\n3 Successes = Stable · 3 Failures = Dead'), 200);
+    }
   }
 }
 
@@ -1694,7 +1883,7 @@ function newTurn() {
 }
 
 function longRest() {
-  if (!confirm('Long Rest? This will fully restore HP and all resources.')) return;
+  if (!confirm('Long Rest? This will fully restore HP and all resources, end the encounter, and return to setup.')) return;
   state.hp = state.maxHP;
   state.rageRemaining = CHAR.maxRage;
   state.raging = false;
@@ -1705,7 +1894,10 @@ function longRest() {
   state.largeFormActive = false;
   state.stormRemaining = CHAR.maxStorm;
   state.hitDiceRemaining = CHAR.maxHitDice;
-  renderAll();
+  state.relentlessUses = 0;
+  state.inCombat = false;
+  clearSave();            // discard the saved combat session
+  showScreen('screen-setup');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1718,6 +1910,81 @@ function renderAll() {
   renderThisTurn();
   renderReactions();
   renderResources();
+  renderRecommendations();
+  saveState();   // single persistence choke point
+}
+
+// ══════════════════════════════════════════════════════════════
+// RECOMMENDATION ENGINE  (emergency → context → default)
+// ══════════════════════════════════════════════════════════════
+function totalReactionsReady() {
+  return (state.retaliationUsed ? 0 : 1) + state.stormRemaining;
+}
+
+function buildRecommendations() {
+  const recs = [];
+  const pct = state.maxHP ? state.hp / state.maxHP : 0;
+
+  // ── EMERGENCY ──────────────────────────────────────────────
+  if (state.hp === 0) {
+    if (state.raging) {
+      recs.push({ tier: 'emergency', tag: 'Down', text: `Raging at 0 HP — attempt Relentless Rage: DC ${relentlessDC()} CON save → HP becomes ${CHAR.relentlessHP}. Use the button in Resources.` });
+    } else {
+      recs.push({ tier: 'emergency', tag: 'Down', text: 'At 0 HP — roll Death Saves each turn (d20, 10+ success).' });
+    }
+    return recs; // nothing else matters
+  }
+  if (pct <= 0.25) {
+    recs.push({ tier: 'emergency', tag: 'Critical', text: `HP critical (${state.hp}/${state.maxHP}). Stay Raging for B/P/S resistance${state.raging ? '' : ' — RAGE now'}; Relentless Rage will catch a drop to 0. Consider Large Form for reach/disengage.` });
+  }
+
+  // ── CONTEXT / DEFAULT ──────────────────────────────────────
+  if (!state.raging && state.rageRemaining > 0) {
+    recs.push({ tier: 'action', tag: 'Open', text: 'RAGE (Bonus Action): +3 STR damage, resist B/P/S, immune Charmed/Frightened, Instinctive Pounce move on entry.' });
+  }
+  if (state.raging && !state.recklessOn) {
+    recs.push({ tier: 'action', tag: 'Attack', text: 'Reckless Attack for Advantage — also turns on Frenzy (+3d6 on first hit) and enables Brutal Strike.' });
+  }
+  if (state.raging && state.recklessOn) {
+    recs.push({ tier: 'action', tag: 'Attack', text: 'Attack ×2. First STR hit: Frenzy +3d6. On a sure hit, weigh Brutal Strike (forgo Advantage → +1d10 + Forceful/Hamstring).' });
+  }
+  if (!state.savageUsed && state.hp > 0) {
+    recs.push({ tier: 'minor', tag: 'Dice', text: 'Savage Attacker unused — roll damage dice twice on your biggest hit, keep the higher.' });
+  }
+  if (!state.largeFormUsed) {
+    recs.push({ tier: 'minor', tag: 'Bonus', text: 'Large Form (Bonus Action, 1/LR): become Large, +10 ft speed, ADV on STR — strong before a grapple/shove or to close distance.' });
+  }
+
+  // ── REACTIONS ──────────────────────────────────────────────
+  if (!state.retaliationUsed) {
+    recs.push({ tier: 'reaction', tag: 'React', text: 'Retaliation ready: when hit within 5 ft, free melee attack (+8).' });
+  }
+  if (state.stormRemaining > 0) {
+    recs.push({ tier: 'reaction', tag: 'React', text: `Storm's Thunder (${state.stormRemaining} left): when damaged within 60 ft, deal 1d8 Thunder — no roll.` });
+  }
+
+  // ── SOFT WARNINGS (resources left unspent / running dry) ───
+  if (state.raging && state.rageRemaining === 0) {
+    recs.push({ tier: 'warn', tag: 'Last', text: 'Final Rage active — no rages left until a rest. Don\'t let it lapse (attack/take damage each round).' });
+  }
+  if (!state.raging && state.rageRemaining === 0) {
+    recs.push({ tier: 'warn', tag: 'Dry', text: 'Out of Rage — no resistance or rage damage. Lean on positioning, masteries (Topple/Cleave) and reactions.' });
+  }
+
+  return recs;
+}
+
+function renderRecommendations() {
+  const body = document.getElementById('rec-body');
+  if (!body) return;
+  const recs = buildRecommendations();
+  if (!recs.length) {
+    body.innerHTML = '<div class="rec-item minor"><span class="rec-tag">Ready</span><span>All set — pick a target and swing.</span></div>';
+    return;
+  }
+  body.innerHTML = '<div class="rec-list">' + recs.map(r =>
+    `<div class="rec-item ${r.tier}"><span class="rec-tag">${r.tag}</span><span>${r.text}</span></div>`
+  ).join('') + '</div>';
 }
 
 function renderHP() {
@@ -1782,6 +2049,12 @@ function renderRage() {
   }
 
   document.getElementById('rage-status').classList.toggle('visible', state.raging);
+
+  // Relentless Rage reminder reflects the current escalating DC
+  const relRow = document.getElementById('rage-status-relentless');
+  if (relRow) {
+    relRow.textContent = `Relentless Rage: if you drop to 0 HP, DC ${relentlessDC()} Con save → HP becomes ${CHAR.relentlessHP}`;
+  }
 }
 
 function renderWeapon() {
@@ -1896,6 +2169,16 @@ function renderResources() {
     lfStatus.textContent = 'Recovers on Long Rest';
   }
 
+  // Relentless Rage
+  const relTag = document.getElementById('relentless-tag');
+  const relStatus = document.getElementById('relentless-status');
+  if (relTag) relTag.textContent = `Next DC ${relentlessDC()}`;
+  if (relStatus) {
+    relStatus.textContent = state.relentlessUses > 0
+      ? `Used ${state.relentlessUses}× this rest`
+      : (state.raging ? 'Armed while Raging' : 'Only while Raging');
+  }
+
   // Hit Dice
   const hdEl = document.getElementById('hd-pips');
   hdEl.innerHTML = '';
@@ -1916,7 +2199,7 @@ function spendHitDie(i) {
   state.hitDiceRemaining--;
   state.hp = Math.min(state.maxHP, state.hp + roll);
   renderAll();
-  alert(`Hit Die Result: d12+2 = ${roll}\nHP restored to ${state.hp}/${state.maxHP}`);
+  alert(`Hit Die Result: d12+3 = ${roll}\nHP restored to ${state.hp}/${state.maxHP}`);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -1924,7 +2207,18 @@ function spendHitDie(i) {
 // ══════════════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   buildWeaponGrid();
-  showScreen('screen-setup');
+
+  // Restore a saved session before the first render
+  const restored = loadState();
+  if (restored && state.inCombat) {
+    // Reflect the saved weapon selection on the setup screen too
+    if (state.selectedWeapon) selectWeapon(state.selectedWeapon.id);
+    renderAll();
+    showScreen('screen-combat');
+  } else {
+    if (restored && state.selectedWeapon) selectWeapon(state.selectedWeapon.id);
+    showScreen('screen-setup');
+  }
 
   document.getElementById('btn-begin').addEventListener('click', enterCombat);
 
@@ -1941,7 +2235,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hide loading
   document.getElementById('loading').style.display = 'none';
 
-  console.log('[Lidtrix v1.0] Ready. Enter the fray.');
+  console.log('[Lidtrix v2.0 · Barbarian 12] Ready. Enter the fray.');
 });
 </script>
 </body>

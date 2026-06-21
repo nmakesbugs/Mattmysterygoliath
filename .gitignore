@@ -1,0 +1,7 @@
+# Source-of-truth character sheet — kept local, not published to GitHub Pages
+OdisTreewood_166052518 (2).pdf
+*.pdf
+
+# Local tooling / scratch
+.claude/
+*.txt
